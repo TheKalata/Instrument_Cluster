@@ -1,0 +1,8 @@
+/home/geo/Digital_Cluster/build/CMakeFiles/Digital_Cluster.dir
+/home/geo/Digital_Cluster/build/CMakeFiles/edit_cache.dir
+/home/geo/Digital_Cluster/build/CMakeFiles/rebuild_cache.dir
+/home/geo/Digital_Cluster/build/CMakeFiles/list_install_components.dir
+/home/geo/Digital_Cluster/build/CMakeFiles/install.dir
+/home/geo/Digital_Cluster/build/CMakeFiles/install/local.dir
+/home/geo/Digital_Cluster/build/CMakeFiles/install/strip.dir
+/home/geo/Digital_Cluster/build/CMakeFiles/Digital_Cluster_autogen.dir
