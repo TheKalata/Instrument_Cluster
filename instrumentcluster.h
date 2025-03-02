@@ -2,17 +2,20 @@
 #define INSTRUMENTCLUSTER_H
 
 #include <QWidget>
+#include <QUdpSocket>
 
 class InstrumentCluster : public QWidget {
     Q_OBJECT
 
 public:
-    explicit InstrumentCluster(QWidget *parent = nullptr); // Конструктор
+    explicit InstrumentCluster(QWidget *parent = nullptr);
     ~InstrumentCluster() override = default;
 
 protected:
-    void paintEvent(QPaintEvent *event) override; // Метод за рисуване
-    void keyPressEvent(QKeyEvent *event) override; //Метод за управление на клавиши
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    void processIncomingData();
 
 private:
     int speed;
@@ -23,6 +26,8 @@ private:
     bool rightIndicatorVisible;
     bool highBeams;
     bool dimpBeam;
+
+    QUdpSocket *udpSocket;
 };
 
-#endif // INSTRUMENTCLUSTER_H
+#endif
