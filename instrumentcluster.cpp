@@ -3,28 +3,19 @@
 #include <QTimer>
 #include <cmath>
 #include <QtMath>
-#include <QKeyEvent>
 #include <QDebug>
+#include <QUdpSocket>
+#include <QStringList>
 
-// Конструктор
 InstrumentCluster::InstrumentCluster(QWidget *parent)
-    : QWidget(parent), speed(0), rpm(0), leftIndicator(false), leftIndicatorVisible(false), rightIndicator(false), rightIndicatorVisible(false), highBeams(false), dimpBeam(false) // Инициализиране на променливите
+    : QWidget(parent), speed(0), rpm(0), leftIndicator(false), leftIndicatorVisible(false), rightIndicator(false), rightIndicatorVisible(false), highBeams(false), dimpBeam(false) // Инициализиране на проемнливите
 {
     setFocusPolicy(Qt::StrongFocus); //Позволява прихващането на клавиши
     this->setFocus();
 
-    // Таймер за обновяване на визуализацията
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [this]() {
-        speed += 1;
-        if (speed > 240) speed = 0;
-
-        rpm += 50;
-        if (rpm > 8000) rpm = 0;
-
-        update();
-    });
-    timer->start(10); // Актуализиране на всеки 100 ms
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(QHostAddress::LocalHost, 5006);
+    connect(udpSocket, &QUdpSocket::readyRead, this, &InstrumentCluster::processIncomingData);
 
     // Таймер за мигачите
     QTimer *indicatorTimer = new QTimer(this);
@@ -41,61 +32,25 @@ InstrumentCluster::InstrumentCluster(QWidget *parent)
     indicatorTimer->start(500); // Мига на всеки 500 ms
 }
 
-void InstrumentCluster::keyPressEvent(QKeyEvent *event) {
-    if (event->key() == Qt::Key_O) { // Ако клавишът "O" е натиснат
-        if (rightIndicator){
-            rightIndicator = !rightIndicator;
-        }
-        leftIndicator = !leftIndicator; // Превключва състоянието на мигача
-        qDebug() << "Left indicator toggled. State:" << leftIndicator; // Debug изход
-        update(); // Обновяване на визуализацията
-    }
+void InstrumentCluster::processIncomingData(){
+    while (udpSocket->hasPendingDatagrams()){
+        QByteArray datagram;
+        datagram.resize(udpSocket->pendingDatagramSize());
+        udpSocket->readDatagram(datagram.data(), datagram.size());
 
-    if (event->key() == Qt::Key_P) { // Ако клавишът "P" е натиснат
-        if (leftIndicator){
-            leftIndicator = !leftIndicator;
-        }
-        rightIndicator = !rightIndicator; // Превключва състоянието на мигача
-        qDebug() << "Right indicator toggled. State:" << rightIndicator; // Debug изход
-        update();
-    }
+        QList<QByteArray> dataList = datagram.split(',');
 
-    if (event->key() == Qt::Key_I){ // Аварийките
-        if (leftIndicator && rightIndicator){
-            leftIndicator = false;
-            rightIndicator = false;
-        }
-        else{
-            if (leftIndicator || rightIndicator)
-            {
-                leftIndicator = false;
-                rightIndicator = false;
-            }
-
-            leftIndicator = !leftIndicator; // Превключва състоянието на мигача
-            rightIndicator = !rightIndicator; // Превключва състоянието на мигача
+        if (dataList.size() >= 6){
+            speed = dataList[0].toFloat();
+            rpm = dataList[1].toInt();
+            leftIndicator = dataList[2].toInt();
+            rightIndicator = dataList[3].toInt();
+            dimpBeam = dataList[4].toInt();
+            highBeams = dataList[5].toInt();
         }
 
         update();
     }
-
-    if (event->key() == Qt::Key_H){ // Къси светлини
-        if(dimpBeam){
-            dimpBeam = false;
-        }
-        highBeams = !highBeams;
-        update();
-    }
-
-    if (event->key() == Qt::Key_J){ // Дълги светлини
-        if (highBeams){
-            highBeams = false;
-        }
-        dimpBeam = !dimpBeam;
-        update();
-    }
-
-    QWidget::keyPressEvent(event);
 }
 
 // Метод за рисуване
