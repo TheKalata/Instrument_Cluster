@@ -8,7 +8,15 @@
 #include <QStringList>
 
 InstrumentCluster::InstrumentCluster(QWidget *parent)
-    : QWidget(parent), speed(0), rpm(0), leftIndicator(false), leftIndicatorVisible(false), rightIndicator(false), rightIndicatorVisible(false), highBeams(false), dimpBeam(false)
+    : QWidget(parent), 
+      speed(0),
+      rpm(0),
+      leftIndicator(false),
+      leftIndicatorVisible(false),
+      rightIndicator(false),
+      rightIndicatorVisible(false),
+      highBeams(false),
+      dimpBeam(false)
 {
     setFocusPolicy(Qt::StrongFocus);
     this->setFocus();
